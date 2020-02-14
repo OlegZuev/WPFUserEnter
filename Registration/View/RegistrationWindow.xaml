@@ -1,0 +1,88 @@
+﻿<Window x:Class="Registration.View.RegistrationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Registration"
+        xmlns:viewModel="clr-namespace:Registration.ViewModel"
+        mc:Ignorable="d"
+        ResizeMode="CanMinimize"
+        Title="Форма регистрации" Height="300" Width="400">
+    <Window.DataContext>
+        <viewModel:MainWindowViewModel x:Name="VmMainWindow" />
+    </Window.DataContext>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+    <Border Padding="10">
+        <StackPanel>
+            <!-- Логин -->
+            <Grid>
+                <Grid.DataContext>
+                    <viewModel:ErrorProviderViewModel BorderTbName="Gray" />
+                </Grid.DataContext>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Логин" FontSize="16" FontWeight="Bold" Grid.Column="0" />
+                <Grid Grid.Column="1"
+                      ToolTipService.ToolTip="{Binding ErrorName}"
+                      ToolTipService.IsEnabled="{Binding ToolTipNameEnable}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="TbLogin" Padding="2" Grid.Column="0"
+                             Text="{Binding Path=TbLoginText, ElementName=VmMainWindow, UpdateSourceTrigger=PropertyChanged}"
+                             BorderBrush="{Binding BorderTbName}" />
+                    <Image
+                        Visibility="{Binding ToolTipNameEnable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Source="../Images/danger-370x331.png" Grid.Column="1" Margin="3" />
+                </Grid>
+            </Grid>
+
+            <!-- Пароль -->
+            <Grid Margin="0 10">
+                <Grid.DataContext>
+                    <viewModel:ErrorProviderViewModel BorderTbName="Gray" />
+                </Grid.DataContext>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Пароль" FontSize="16" FontWeight="Bold" Grid.Column="0" />
+
+                <StackPanel Grid.Column="1">
+                    <Grid ToolTipService.ToolTip="{Binding ErrorName}"
+                          ToolTipService.IsEnabled="{Binding ToolTipNameEnable}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="20" />
+                        </Grid.ColumnDefinitions>
+
+                        <PasswordBox x:Name="TbPassword" Padding="2" Grid.Column="0"
+                                     BorderBrush="{Binding BorderTbName}" />
+                        <Image
+                            Visibility="{Binding ToolTipNameEnable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Source="../Images/danger-370x331.png" Grid.Column="1" Margin="3" />
+                    </Grid>
+                    <Image Visibility="{Binding Path=ImgPasswordVisibility, ElementName=VmMainWindow}"
+                           Source="{Binding Path=ImgPasswordStrengthPath, ElementName=VmMainWindow}"
+                           Height="10" Margin="0 5 20 0" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Зарегистрироваться -->
+            <Button Content="Зарегистрироваться" Margin="25 125 25 0"
+                    x:Name="SignUp"
+                    Command="{Binding Path=RegisterUserCommand, ElementName=VmMainWindow}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+        </StackPanel>
+    </Border>
+</Window>

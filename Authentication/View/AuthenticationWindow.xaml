@@ -1,0 +1,48 @@
+﻿<Window x:Class="Authentication.View.AuthenticationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Authentication.View"
+        xmlns:viewModel="clr-namespace:Authentication.ViewModel"
+        mc:Ignorable="d"
+        ResizeMode="CanMinimize"
+        Title="Аутентификация" Height="300" Width="400">
+    <Window.DataContext>
+        <viewModel:MainWindowViewModel x:Name="VmMainWindow" />
+    </Window.DataContext>
+    <Grid>
+        <Border Padding="10">
+            <StackPanel>
+                <!-- Логин -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Логин" FontSize="16" FontWeight="Bold" Grid.Column="0" />
+                    <TextBox x:Name="TbLogin" Padding="2" Grid.Column="1"
+                             Text="{Binding TbLoginText}"/>
+                </Grid>
+
+                <!-- Пароль -->
+                <Grid Margin="0 10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Пароль" FontSize="16" FontWeight="Bold" Grid.Column="0" />
+                    <PasswordBox x:Name="TbPassword" Padding="2" Grid.Column="1" />
+                </Grid>
+
+                <!-- Войти -->
+                <Button Content="Войти" Margin="25 125 25 0"
+                    x:Name="SignIn"
+                    Command="{Binding SignInCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
