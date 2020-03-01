@@ -104,13 +104,14 @@ namespace Database {
                 connection.Open();
                 var command = new NpgsqlCommand {
                     Connection = connection,
-                    CommandText = @"INSERT INTO users (login, password) VALUES (@userLogin, @userPassword)"
+                    CommandText = @"INSERT INTO users (login, password) VALUES (@userLogin, @userPassword) RETURNING id",
                 };
                 command.Parameters.AddWithValue("@userLogin", login);
                 // Соль хранится в начале пароля
                 command.Parameters.AddWithValue("@userPassword", password);
 
-                command.ExecuteNonQuery();
+                long id = (long) command.ExecuteScalar();
+                NewUserAdded?.Invoke(id);
             }
 
             return true;
@@ -138,6 +139,35 @@ namespace Database {
             return _BCrypt.Verify(password.Trim(), passwordHash);
         }
 
+        public bool ChangeUser(long id, string login, string password, bool passwordChanged, DateTime registrationDate) {
+            login = ClearLogin(login);
+            if (login.Length < 6) {
+                return false;
+            }
+
+            if (passwordChanged) {
+                password = password.Trim();
+                password = EncryptPassword(password);
+            }
+
+            using (var connection = new NpgsqlConnection(_sConnection)) {
+                connection.Open();
+                var command = new NpgsqlCommand {
+                    Connection = connection,
+                    CommandText = @"UPDATE users SET login = @userLogin, password = @userPassword, registration_date = @userRegistrationDate WHERE id = @userId",
+                };
+                command.Parameters.AddWithValue("@userLogin", login);
+                command.Parameters.AddWithValue("@userPassword", password);
+                command.Parameters.AddWithValue("@userRegistrationDate", registrationDate);
+                command.Parameters.AddWithValue("@userId", id);
+
+                command.ExecuteNonQuery();
+                SomeUserChanged?.Invoke(id);
+            }
+
+            return true;
+        }
+
         public delegate void EventString(EventStringTypes objectType, object arg);
 
         public event EventString ErrorInfoChanged;
@@ -151,6 +181,10 @@ namespace Database {
         private void OnPasswordStrengthChanged(EventStringTypes senderType, int strengthIndex) {
             PasswordStrengthChanged?.Invoke(senderType, strengthIndex);
         }
+
+        public static event Action<long> NewUserAdded;
+
+        public static event Action<long> SomeUserChanged;
     }
 
     public enum EventStringTypes {

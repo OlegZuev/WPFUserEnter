@@ -5,14 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Registration"
         xmlns:viewModel="clr-namespace:Registration.ViewModel"
+        xmlns:model="clr-namespace:Registration.Model"
+        WindowStartupLocation="CenterOwner"
         mc:Ignorable="d"
         ResizeMode="CanMinimize"
         Title="Форма регистрации" Height="300" Width="400">
     <Window.DataContext>
-        <viewModel:MainWindowViewModel x:Name="VmMainWindow" />
+        <viewModel:RegistrationWindowViewModel x:Name="VmMainWindow" />
     </Window.DataContext>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <model:NullImageConverter x:Key="NullImageConverter"/>
     </Window.Resources>
     <Border Padding="10">
         <StackPanel>
@@ -73,7 +76,7 @@
                             Source="../Images/danger-370x331.png" Grid.Column="1" Margin="3" />
                     </Grid>
                     <Image Visibility="{Binding Path=ImgPasswordVisibility, ElementName=VmMainWindow}"
-                           Source="{Binding Path=ImgPasswordStrengthPath, ElementName=VmMainWindow}"
+                           Source="{Binding Path=ImgPasswordStrengthPath, ElementName=VmMainWindow, Converter={StaticResource NullImageConverter}}"
                            Height="10" Margin="0 5 20 0" HorizontalAlignment="Left" />
                 </StackPanel>
             </Grid>

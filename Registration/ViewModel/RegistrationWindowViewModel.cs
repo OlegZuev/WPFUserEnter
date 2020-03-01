@@ -7,9 +7,9 @@ using Registration.View;
 using Database;
 
 namespace Registration.ViewModel {
-    public class MainWindowViewModel : BaseViewModel {
+    public class RegistrationWindowViewModel : BaseViewModel {
         private readonly DatabaseInteraction _database;
-        private readonly RegistrationWindow _regWindow;
+        private readonly RegistrationWindow _parentWindow;
 
         private string _tbLoginText;
         private string _imgPasswordStrengthPath;
@@ -48,7 +48,7 @@ namespace Registration.ViewModel {
             }
         }
 
-        public MainWindowViewModel() {
+        public RegistrationWindowViewModel() {
             try {
                 _database = new DatabaseInteraction();
             } catch (Npgsql.PostgresException e) {
@@ -56,7 +56,8 @@ namespace Registration.ViewModel {
                 throw;
             }
             
-            _regWindow = (RegistrationWindow) Application.Current.MainWindow;
+            _parentWindow = RegistrationWindow.Instance;
+
             RegisterUserCommand = new DelegateCommand(RegisterUser, CanRegisterUser);
             _database.PasswordStrengthChanged += (type, o) => {
                 if (type == EventStringTypes.PasswordStrengthIndex) {
@@ -67,12 +68,13 @@ namespace Registration.ViewModel {
             _database.ErrorInfoChanged += (type, o) => {
                 switch (type) {
                     case EventStringTypes.Login:
-                        ((ErrorProviderViewModel) _regWindow.TbLogin.DataContext).ErrorName = o as string;
+                        ((ErrorProviderViewModel) _parentWindow.TbLogin.DataContext).ErrorName = o as string;
                         break;
                     case EventStringTypes.Password:
-                        ((ErrorProviderViewModel) _regWindow.TbPassword.DataContext).ErrorName = o as string;
+                        ((ErrorProviderViewModel) _parentWindow.TbPassword.DataContext).ErrorName = o as string;
                         break;
                 }
+                CommandManager.InvalidateRequerySuggested();
             };
         }
 
@@ -93,7 +95,7 @@ namespace Registration.ViewModel {
         private void RegisterUser(object sender) {
             try {
                 MessageBox.Show(
-                    _database.RegisterUser(TbLoginText, _regWindow.TbPassword.Password)
+                    _database.RegisterUser(TbLoginText, _parentWindow.TbPassword.Password)
                         ? "Вы успешно зарегистрированы!"
                         : "Ошибка, некорректные данные. Запрос на регистрацию отклонён!", "Уведомление");
                 TbLoginText = TbLoginText;
@@ -103,10 +105,10 @@ namespace Registration.ViewModel {
         }
 
         private bool CanRegisterUser(object sender) {
-            var tbLoginEp = (ErrorProviderViewModel) _regWindow.TbLogin.DataContext;
-            var tbPasswordEp = (ErrorProviderViewModel) _regWindow.TbPassword.DataContext;
+            var tbLoginEp = (ErrorProviderViewModel) _parentWindow.TbLogin.DataContext;
+            var tbPasswordEp = (ErrorProviderViewModel) _parentWindow.TbPassword.DataContext;
             return string.IsNullOrEmpty(tbLoginEp.ErrorName) && string.IsNullOrEmpty(tbPasswordEp.ErrorName) &&
-                   !string.IsNullOrEmpty(TbLoginText) && !string.IsNullOrEmpty(_regWindow.TbPassword.Password);
+                   !string.IsNullOrEmpty(TbLoginText) && !string.IsNullOrEmpty(_parentWindow.TbPassword.Password);
         }
     }
 }
